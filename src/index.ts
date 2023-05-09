@@ -1,40 +1,23 @@
 import fetch from 'node-fetch';
 import { getClientId, getClientSecret } from "./environment.js";
 
-// your application requests authorization
 const url = 'https://accounts.spotify.com/api/token';
-// const url = 'http://en.wikipedia.org';
 var authOptions = {
-    // url,
-    method: 'get',
+    method: 'post',
     headers: {
-        'Authorization': 'Basic ' + (Buffer.from(getClientId() + ':' + getClientSecret()).toString('base64'))
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'Authorization': 'Basic ' + (Buffer.from(getClientId() + ':' + getClientSecret()).toString('base64')),
     },
-    // form: {
-    //     grant_type: 'client_credentials'
-    // },
-    // json: true
+    body: new URLSearchParams({
+        'grant_type': 'client_credentials'
+    })
 };
 
 const response = await fetch(url, authOptions)
 const body = await response.text();
-console.log(body);
-console.log(response.status);
+const parsed = JSON.parse(body); // TODO: type guard, see https://stackoverflow.com/questions/38688822/how-to-parse-json-string-in-typescript
 
-// request.post(authOptions, function (error, response, body) {
-//     if (!error && response.statusCode === 200) {
-
-//         // use the access token to access the Spotify Web API
-//         var token = body.access_token;
-//         var options = {
-//             url: 'https://api.spotify.com/v1/users/jmperezperez',
-//             headers: {
-//                 'Authorization': 'Bearer ' + token
-//             },
-//             json: true
-//         };
-//         request.get(options, function (error, response, body) {
-//             console.log(body);
-//         });
-//     }
-// })
+if (parsed?.access_token) {
+    const access_token = parsed?.access_token;
+    console.log(`Access token: ${access_token}`);
+}
